@@ -12,6 +12,8 @@ Utilice el archivo `data.csv` para resolver las preguntas.
 
 """
 from csv import reader
+from operator import itemgetter  
+import itertools
 file = open("data.csv","r")
 lines =reader(file, delimiter= "\t")
 lines = list(lines)
@@ -45,7 +47,10 @@ def pregunta_02():
     ]
 
     """
-    return
+    primcoluma= [i[0] for i in lines]     # list comphrension que guarda priemra columna
+    Noduplicadas = sorted(set(primcoluma)) # ordena los valores sin duplicados de la primera columna
+    listadetuplas = [(j,primcoluma.count(j)) for j in Noduplicadas]       
+    return listadetuplas   
 
 
 def pregunta_03():
@@ -61,9 +66,19 @@ def pregunta_03():
         ("D", 31),
         ("E", 67),
     ]
-
     """
-    return
+    primeracolumaletas = [i[0] for i in lines]
+    primerosnumeros= [i[1] for i in lines]
+    zipped = list(zip(primeracolumaletas,primerosnumeros))
+    zipped.sort(key=itemgetter(0))
+    lista =[]
+    for key, group in itertools.groupby(zipped,lambda x:x[0]):
+        acum = 0 
+        for i in list(group):
+            acum+=int(i[1])            
+        lista.append((key,acum))
+
+    return lista
 
 
 def pregunta_04():
@@ -88,7 +103,10 @@ def pregunta_04():
     ]
 
     """
-    return
+    listameses= [x[2][5:7] for x in lines]
+    conjuntomeses = sorted(set(listameses))
+    salida = [(x,listameses.count(x)) for x in conjuntomeses]    
+    return salida
 
 
 def pregunta_05():
@@ -106,7 +124,23 @@ def pregunta_05():
     ]
 
     """
-    return
+
+    listaletras= [x[0] for x in  lines]
+    listanumeros = [x[1]for x in lines]    
+    zipped = list(zip(listaletras,listanumeros)) 
+    zipped.sort(key=itemgetter(0))
+    lista=[]
+
+    for key, group in itertools.groupby(zipped,lambda x:x[0]):
+        max = 0
+        min = 10*100
+        for i in group:
+            if int(i[1])< int(min):
+                min=int(i[1])
+            if int(i[1])> max:
+                max = int(i[1])  
+        lista.append((key,max,min))
+    return lista
 
 
 def pregunta_06():
@@ -131,7 +165,30 @@ def pregunta_06():
     ]
 
     """
-    return
+    columna4 = [i[4] for i in lines] # se toma la columna 4 del csv
+    listadiccionario =[] # se inicializa lista para convertir string en diccionarios
+    for elemento in columna4: #permite convertir el formato string original a variable tipo diccionario
+        listadalista = [i.split(":") for i in elemento.split(",")] # se parte por : y por ,
+        listadiccionario.append(dict(listadalista))
+    
+    listaclavevalor = [] # a partir del diccionario se desea una lista de tupas con el clave y el valor del dict
+    for i in listadiccionario: #permite crear la tupla de clave valor diccionario
+        for k,v in i.items():
+            listaclavevalor.append((k,v))
+    listaclavevalor.sort(key=itemgetter(0))# permite ordenar la lista para realizar el groupby
+
+    lista= []
+    for key, group in itertools.groupby(listaclavevalor,lambda x:x[0]): # funcion para agurpar mismas clavs
+        max = 0 # se inicializa el max
+        min = 10*100 # se inicializa el min
+        for i in group: # se itera la variable group
+            if int(i[1])< int(min): # se recorre uno por uno preguntando si es el min
+                min=int(i[1])
+            if int(i[1])> max: # se recorre uno por uno preguntando si es el maximo.
+                max = int(i[1])  
+        lista.append((key,min,max))
+    return lista
+
 
 
 def pregunta_07():
@@ -155,7 +212,15 @@ def pregunta_07():
     ]
 
     """
-    return
+    listanumeros = [i[1] for i in lines]
+    listalletras = [i[0] for i in lines]
+    zipped = list(zip(listanumeros,listalletras))
+    zipped.sort(key = itemgetter(0))
+    lista = []
+    for key, group in itertools.groupby(zipped, lambda x:x[0]):
+        lista1 = [i[1] for i in group]
+        lista.append((int(key),lista1))
+    return lista
 
 
 def pregunta_08():
@@ -180,7 +245,17 @@ def pregunta_08():
     ]
 
     """
-    return
+    listanumeros = [i[1] for i in lines]
+    listalletras = [i[0] for i in lines]
+    zipped = list(zip(listanumeros,listalletras))
+    zipped.sort(key = itemgetter(0))
+    lista = []
+    for key, group in itertools.groupby(zipped, lambda x:x[0]):
+        lista1 = [i[1] for i in group]
+        lista1 = set(lista1)
+        lista.append((int(key),sorted(list(lista1))))
+
+    return lista
 
 
 def pregunta_09():
@@ -203,7 +278,22 @@ def pregunta_09():
     }
 
     """
-    return
+    diccionario = [i[4] for i in lines]
+    listadiccionario = []
+    for elemento in diccionario:
+        listadelista = [i.split(":") for i in elemento.split(",")]
+        listadiccionario.append(dict(listadelista))
+
+    llaves= []
+    for i in listadiccionario:
+        for key in i.keys():
+            llaves.append(key)
+
+    agrupaciondiccion = sorted(set(llaves))
+    agrupaciones = [[j,llaves.count(j)] for j in agrupaciondiccion]
+        
+    return dict(agrupaciones)
+
 
 
 def pregunta_10():
@@ -224,7 +314,20 @@ def pregunta_10():
 
 
     """
-    return
+    listeltras = [i[0] for i in lines]
+    Nelementotcol5 = [len(i[3].split(",")) for i in lines] # # elementos columna 5
+    columna6 = [i[4] for i in lines]
+    listadicionario = []
+    for elemento in columna6:
+        diccion = [i.split(":") for i in elemento.split(",")]
+        listadicionario.append(diccion)
+        Nelementotcol6=[len(dic) for dic in listadicionario]   
+    lista = []
+    for n in range(0,len(listeltras)):
+        lista.append((listeltras[n],Nelementotcol5[n],Nelementotcol6[n]))
+    
+    return lista
+
 
 
 def pregunta_11():
@@ -245,8 +348,21 @@ def pregunta_11():
 
 
     """
-    return
+    columna4 = [i[3] for i  in lines] # intenté con un split, pero para realizar el zip queda de otra forma
+    columna2 = [i[1] for i in lines]
+    serievalores = [j for i in columna4 for j in i]
+    letras = sorted(list(set(serievalores)))
+    letras.pop(0) # elimina la coma
+    zipped= list(zip(columna4,columna2))
+    lista = []
+    for i in letras:
+        acum=0
+        for j in zipped:
+            if i in j[0]:
+                acum+=int(j[1])
+        lista.append([i,acum])   
 
+    return dict(lista)
 
 def pregunta_12():
     """
@@ -263,4 +379,22 @@ def pregunta_12():
     }
 
     """
-    return
+    letras = [i[0] for i in lines] #lista de de las primeras letras
+    diccionario = [i[4] for i in lines] # lista del diccionario columna 4
+    listaDiccionrio = [] 
+    for elemento in diccionario: #crenado los diccionarios dentro de la lista
+        dic = [j.split(":") for j in elemento.split(",")]
+        listaDiccionrio.append(dict(dic))
+    listavaores= []    
+    for dictelement in listaDiccionrio: #recorre solo los valores del diccionario para almacenaros
+        listavalues  = [int(k) for k in dictelement.values()] # toma los values del diccionarios y los convierte en tipo entero
+        listavaores.append(sum(listavalues)) # suma cada uno de los elementos de cada lista
+ 
+    zipped = sorted(list(zip(letras,listavaores)))
+    lista = []
+    for key, group in itertools.groupby(zipped, lambda x:x[0]):
+        acum = 0
+        for i in list(group):
+            acum += i[1]
+        lista.append([key,acum])
+    return dict(lista)
